@@ -26,15 +26,22 @@ var Comment = Backbone.Model.extend({
   initialize: function(message) {
     /* Set the initial values for `votes` to 0 and `message` to the message.
      * Remember to use setters when working with attributes! */
+    this.set("votes", 0);
+    this.set("message", message); 
   },
   votes: function() {
     /* Return the votes attribute on this model.
      * Remember to use a getter when working with attributes! */
+     return this.get("votes");
   },
   upvote: function(){
     // Set the `votes` attribute to the current vote count plus one.
-  }
+    this.set("votes", this.get("votes")+1);
+  },
   // Add a downvote function; don't forget the comma above.
+  downvote: function() {
+    this.set("votes", this.get("votes")-1)
+  }
 });
 
 /* - Backbone VIEW ------------------------------------------------------------
@@ -55,10 +62,28 @@ var CommentView = Backbone.View.extend({
    * it will re-render itself if the `votes` attribute changes. */
   initialize: function() {
     this.model.on('change:votes', function() {
+      console.log("something changed")
     /* Let's break down the line above:
      * - `this`           => the CommentView instance
      * - `this.model`     => the model associated with this view instance
-     *   - This has not been set yet - it will be set later to a Comment model.
+     *   - This has not been set yet - it will be set later to a Comment model. ##ASK_HEL
+     * - `this.model.on`  => register an event listener to the model
+     * - `'change:votes'` => this first argument defines what to listen for
+     *   - We can listen for a change on a specific attribute using a colon.
+     * - `function`       => this is the callback for this event listener */
+      this.render()
+    /*   - Usually, we can't rely on `this` being what we think it is in
+     *      an event listener. However, Backbone allows us to specify what
+     *      `this` will be in the third argument of `model.on`,
+     *      as we will do in the next line: */
+    }, this);
+
+    this.model.on('change:message', function() {
+      console.log("something changed")
+    /* Let's break down the line above:
+     * - `this`           => the CommentView instance
+     * - `this.model`     => the model associated with this view instance
+     *   - This has not been set yet - it will be set later to a Comment model. ##ASK_HEL
      * - `this.model.on`  => register an event listener to the model
      * - `'change:votes'` => this first argument defines what to listen for
      *   - We can listen for a change on a specific attribute using a colon.
@@ -81,7 +106,7 @@ var CommentView = Backbone.View.extend({
   // Now that we have an event listener calling `render`, we must define it:
   render: function() {
     // As in step2, we define a template:
-    var html = [
+    var qqq = [
       '<div>',
         '<span class="votes">',
           this.model.get('votes'),
@@ -92,6 +117,7 @@ var CommentView = Backbone.View.extend({
         '</br>',
       '</div>'
     ].join('');
+
 
     /* When we defined our own render function, we had to deal with jQuery.
      * Backbone gives us a convenience method to take care of this:
@@ -106,7 +132,7 @@ var CommentView = Backbone.View.extend({
      * using `this.$el`.
      *
      * Rendering now becomes as simple as setting the $el's html: */
-    return this.$el.html(html);
+    return this.$el.html(qqq);
 
     /* We're also returning the $el. It's already been modified and updated,
      * but it is not on the page yet.
@@ -117,14 +143,41 @@ var CommentView = Backbone.View.extend({
   }
 });
 
+var wacky = Backbone.Model.extend({
+  /* The argument passed to `initialize` is what the model is instantiated with:
+   * in `new Comment(message)`, message will be passed to `initialize`. */
+  initialize: function(message) {
+    /* Set the initial values for `votes` to 0 and `message` to the message.
+     * Remember to use setters when working with attributes! */
+    this.set("votes", 0);
+    this.set("message", message); 
+  },
+  votes: function() {
+    /* Return the votes attribute on this model.
+     * Remember to use a getter when working with attributes! */
+     return this.get("votes");
+  },
+  upvote: function(){
+    // Set the `votes` attribute to the current vote count plus one.
+    this.set("votes", this.get("votes")+1);
+  },
+  // Add a downvote function; don't forget the comma above.
+  downvote: function() {
+    this.set("votes", this.get("votes")-1)
+  }
+});
+
+
 // That's about it! Let's take it for a spin:
 
 /* Create a new comment model using our Comment class,
  * passing the first message as an argument: */
 var comment = new Comment('This is a message');
 
+var wackyinstance = new wacky("This is our wacky instance!")
 // Create a view, and associate it with this model:
 var commentView = new CommentView({ model: comment });
+var commentView2 = new CommentView({ model: wackyinstance });
 
 /* Notice that we instantiate the view with an object {model: comment}.
  * This is called an options hash. With views, if we pass an object with
@@ -137,7 +190,9 @@ var commentView = new CommentView({ model: comment });
  */
 
 // Append the view to the page. This is why we returned html from `render`:
-// $('body').append(commentView.render());
+
+$('body').append(commentView.render());
+$('body').append(commentView2.render());
 
 /* The number of votes should be 0.
  * We set that as the initial default value in the comment model.
@@ -145,6 +200,8 @@ var commentView = new CommentView({ model: comment });
  * Let's change it and see our eventlistener in action.
  * Uncomment the line below and reload the page,
  * and it should say '1' to the left of the comment. */
+// comment.upvote();
+// //comment.set("message"," This is a NEW message");
 // comment.upvote();
 
 /* play with this in your console as well.
@@ -157,6 +214,14 @@ var commentView = new CommentView({ model: comment });
  * Try voting up and voting down a couple of times and
  * watch the eventlistener auto update the view.  Pretty cool, eh?
  */
+
+ //Experiments:
+ //0) change variable name of html template-- doesn't matter
+ //1) Don't use model:comment, use other word than model-- must use model
     </script>
   </body>
 </html>
+
+
+//Why store array of message on attributes?
+//Why does new not need invocation in chrome console
